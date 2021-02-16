@@ -113,12 +113,27 @@ AC_C_BIGENDIAN
 dnl Check for functions
 AC_CHECK_FUNCS(_snprintf _stricmp _strnicmp snprintf strcasecmp strncasecmp)
 
+dnl Are we building under buildroot?
+AC_MSG_CHECKING(whether building under buildroot)
+AC_ARG_WITH(buildroot,
+[  --with-buildroot        building under buildroot],
+if test "$withval" = no; then 
+  buildroot=no
+else
+  buildroot=yes
+  CPPFLAGS="-DBUILDROOT"
+fi,
+buildroot=no)
+AC_MSG_RESULT($buildroot)
+
 dnl Allow the user to say that various libraries are in one place
 AC_ARG_WITH(local-prefix,
 [  --with-local-prefix=PFX local libraries installed in PFX (optional)],
 CPPFLAGS="$CPPFLAGS -I$withval/include"; LDFLAGS="$LDFLAGS -L$withval/lib",
-if test "$prefix" != "NONE"; then
-  CPPFLAGS="$CPPFLAGS -I$prefix/include"; LDFLAGS="$LDFLAGS -L$prefix/lib"
+if test "x$buildroot" == xno; then
+  if test "$prefix" != "NONE"; then
+    CPPFLAGS="$CPPFLAGS -I$prefix/include"; LDFLAGS="$LDFLAGS -L$prefix/lib"
+  fi
 fi)
 
 dnl Check whether to use zlib (the UNIX version is called z, Win32 zdll)
